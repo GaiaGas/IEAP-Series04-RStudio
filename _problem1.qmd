@@ -55,3 +55,10 @@ data_low$noise <- "1. Low (sd = 5)"
 data_mid$noise <- "2. Medium (sd = 15)"
 data_high$noise <- "3. High (sd = 30)"
 data_all <- rbind(data_low, data_mid, data_high)
+ggplot(data_all, aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_abline(intercept = 5, slope = 2, color = "red", linetype = "dashed") +
+  facet_wrap(~ noise) +
+  ggtitle("Fitted regression (blue) vs true relation (red)")
+```
