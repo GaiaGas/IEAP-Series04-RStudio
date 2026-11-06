@@ -1,0 +1,30 @@
+---
+title: "Linear and non-linear regressions"
+author: "Zoé Sauge, Gaia Gassiole, Jeanne Le Roux"
+date: today
+format:
+  html: default
+  gfm: default
+bibliography: references.bib
+csl: apa.csl
+---
+
+Repository: <https://github.com/GaiaGas/IEAP-Series04-RStudio>
+
+```{r}
+#| include: false
+library(tidyverse)
+library(lmtest)
+```
+
+{{< include _git-workflow.qmd >}}
+
+{{< include _problem1.qmd >}}
+
+{{< include _problem2-3h.qmd >}}
+
+{{< include _problem2-7m.qmd >}}
+
+{{< include _problem2-conclusion.qmd >}}
+
+# References
