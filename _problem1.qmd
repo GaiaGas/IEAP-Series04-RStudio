@@ -34,3 +34,17 @@ model_low <- lm(y ~ x, data = data_low)
 model_mid <- lm(y ~ x, data = data_mid)
 model_high <- lm(y ~ x, data = data_high)
 ```
+
+### Compare the models
+
+```{r}
+results <- data.frame(
+  noise_sd = c(5, 15, 30),
+  intercept = c(coef(model_low)[1], coef(model_mid)[1], coef(model_high)[1]),
+  slope = c(coef(model_low)[2], coef(model_mid)[2], coef(model_high)[2]),
+  slope_se = c(summary(model_low)$coefficients[2, 2], summary(model_mid)$coefficients[2, 2], summary(model_high)$coefficients[2, 2]),
+  r_squared = c(summary(model_low)$r.squared, summary(model_mid)$r.squared, summary(model_high)$r.squared),
+  residual_se = c(sigma(model_low), sigma(model_mid), sigma(model_high))
+)
+results
+```
