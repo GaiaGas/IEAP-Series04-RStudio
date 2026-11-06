@@ -48,3 +48,10 @@ results <- data.frame(
 )
 results
 ```
+### Visualise
+
+```{r}
+data_low$noise <- "1. Low (sd = 5)"
+data_mid$noise <- "2. Medium (sd = 15)"
+data_high$noise <- "3. High (sd = 30)"
+data_all <- rbind(data_low, data_mid, data_high)
