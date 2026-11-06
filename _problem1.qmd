@@ -11,3 +11,18 @@ We generate three data-sets from the same linear relation ($y = 2x + 5$) and onl
 - **What will happen to the amount of explained variance?** : the R² should decrease when noise increases, because a larger part of the variance of $y$ comes from the noise and not from $x$.
 
 - **Will the estimated linear relationships remain identical?** No. Even if the true relation is the same, the three fitted lines will be slightly different, because each dataset contains a different random sample of noise.
+
+## Numerical experiment
+
+### Generate the data-sets
+
+```{r}
+set.seed(1234)
+n <- 100
+x <- seq(1, 50, length.out = n)
+
+# same true relation: y = 2x + 5, three noise levels (sd)
+data_low <- data.frame(x = x, y = 2 * x + 5 + rnorm(n, 0, 5))
+data_mid <- data.frame(x = x, y = 2 * x + 5 + rnorm(n, 0, 15))
+data_high <- data.frame(x = x, y = 2 * x + 5 + rnorm(n, 0, 30))
+```
