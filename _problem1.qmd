@@ -8,3 +8,4 @@ We generate three data-sets from the same linear relation ($y = 2x + 5$) and onl
 
 - **What will happen to the quality of the predictions?**: the predicted line should stay close to the true relation, but individual observations will be further from the line. The residual standard error should increase roughly like the noise level we add.
 
+- **What will happen to the amount of explained variance?** : the R² should decrease when noise increases, because a larger part of the variance of $y$ comes from the noise and not from $x$.
