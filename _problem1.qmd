@@ -26,3 +26,11 @@ data_low <- data.frame(x = x, y = 2 * x + 5 + rnorm(n, 0, 5))
 data_mid <- data.frame(x = x, y = 2 * x + 5 + rnorm(n, 0, 15))
 data_high <- data.frame(x = x, y = 2 * x + 5 + rnorm(n, 0, 30))
 ```
+
+### Fit the models
+
+```{r}
+model_low <- lm(y ~ x, data = data_low)
+model_mid <- lm(y ~ x, data = data_mid)
+model_high <- lm(y ~ x, data = data_high)
+```
