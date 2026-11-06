@@ -70,3 +70,12 @@ Our expectations were mostly confirmed. The estimated slopes (`r round(results$s
 The quality of the fit clearly decreases with noise. The R² drops from `r round(results$r_squared[1], 2)` to `r round(results$r_squared[2], 2)` and `r round(results$r_squared[3], 2)`. The residual standard error (`r round(results$residual_se[1], 1)`, `r round(results$residual_se[2], 1)` and `r round(results$residual_se[3], 1)`) is close to the noise level we added. As expected, the three fitted lines are not identical, even though the underlying relation is the same.
 
 In conclusion, random noise does not change the relation the model finds on average, but it makes the estimates less precise and the predictions less reliable. A low R² does not necessarily mean that the relation is wrong; it can simply mean that the data are noisy.
+
+## A better numerical experiment
+
+Our experiment uses only one random dataset per noise level, so the differences we see between models partly depend on chance. To better reproduce the theoretical expectations, we could:
+
+- **Repeat the simulation many times** (for example 1000 datasets per noise level) and look at the distribution of the estimated slopes and intercepts. We would expect their mean to stay at the true value and their spread to increase with noise.
+- **Test more noise levels** to describe how R² and the standard errors change with noise, instead of comparing only three points.
+- **Vary the sample size** to show that more data compensates for noise by making the estimates more precise.
+- **Compare with theory**: the standard error of the slope can be calculated as $\sigma / \sqrt{\sum (x_i - \bar{x})^2}$ and compared with what we observe.
