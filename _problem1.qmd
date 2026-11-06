@@ -6,3 +6,5 @@ We generate three data-sets from the same linear relation ($y = 2x + 5$) and onl
 
 - **What will happen to the estimated slope and intercept?**: noise is random with a mean of zero, so it should not systematically shift the estimates. The fitted slope and intercept should stay close to the true values (2 and 5) for all noise levels. However, the more noise there is, the further the estimates can move away from the true values by chance, and the larger their standard errors should be.
 
+- **What will happen to the quality of the predictions?**: the predicted line should stay close to the true relation, but individual observations will be further from the line. The residual standard error should increase roughly like the noise level we add.
+
