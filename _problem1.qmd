@@ -1,1 +1,8 @@
 # How does random noise affect linear regression?
+
+## Expectations 
+
+We generate three data-sets from the same linear relation ($y = 2x + 5$) and only change the amount of random noise.
+
+- **What will happen to the estimated slope and intercept?**: noise is random with a mean of zero, so it should not systematically shift the estimates. The fitted slope and intercept should stay close to the true values (2 and 5) for all noise levels. However, the more noise there is, the further the estimates can move away from the true values by chance, and the larger their standard errors should be.
+
