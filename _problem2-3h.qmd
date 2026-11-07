@@ -232,3 +232,7 @@ bptest(m_lin_3h)
 ```
 
 The residuals were not normally distributed for any model (Shapiro-Wilk, p \< .001). Their autocorrelation was about 0.75 between consecutive measurements, so consecutive measurements are not independent. Standard errors and differences in AIC and BIC are therefore probably too optimistic. The Breusch-Pagan test did not indicate heteroscedasticity for the linear model (p = .64), but it only applies to this model here.
+
+### Conclusion
+
+The linear model was the worst one as hypothesised. The mono-exponential and bi-exponential models performed similarly, with the bi-exponential model slightly better according to AIC and the mono-exponential model slightly better according to BIC. However, all three models left structured residuals, which suggests that neither model fully captured the recovery dynamics. For the sake of simplicity, the mono-exponential model may be preferred. Moreover, because the recovery phase was not clearly stated in the recording, our analysis depends on our assumed starting point.
