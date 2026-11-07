@@ -1,6 +1,8 @@
 # 3. Finding a mathematical model for heart rate recovery after exercise
 
-## Heart rate recovery: 3h10 recording
+## Heart rate recovery: 3h10 recording 
+
+## 1. Formulate predictions from scientific literature
 
 ### What mathematical models have been proposed to describe heart rate recovery?
 
@@ -21,3 +23,36 @@ These two articles suggest that one model is not always sufficient. @pierpont200
 ### Hypotheses
 
 For the three-hour recording, we expect the linear model to perform worst. The mono-exponential model should capture the general trend, but may leave structured residuals. The bi-exponential model should fit better only if the recording contains two distinct recovery phases. However, both studies analysed only a few minutes of recovery, so their conclusions may not transfer directly to a three-hour recording.
+
+## Test your predictions using the first dataset
+```{r}
+library(tidyverse)
+library(lmtest)
+```
+### Explore the data
+
+```{r explore-recording-3h}
+# Read the pulse data (timestamp in Unix ms, value in bpm)
+pulse_3h <- read_csv("data/pulse_3h.csv")
+
+# Check the column names, first rows and number of measurements
+names(pulse_3h)
+head(pulse_3h)
+nrow(pulse_3h)
+```
+
+```{r convert-time-3h}
+# Sort by time, convert timestamps to minutes since the start,
+# and rename the heart rate column
+hr_3h <- pulse_3h |>
+  arrange(timestamp) |>
+  transmute(time_min = (timestamp - min(timestamp)) / 60000,
+            hr = value)
+
+# Check the converted data and the range of each variable
+head(hr_3h)
+summary(hr_3h)
+
+# Check the time between two measurements (in seconds)
+summary(diff(hr_3h$time_min) * 60)
+```
