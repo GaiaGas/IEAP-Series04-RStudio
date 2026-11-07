@@ -155,3 +155,80 @@ summary(m_bi_3h)
 ```
 
 The mono-exponential model gave $HR_0$ = 54.0 bpm, $A$ = 50.7 bpm and $\tau$ = 121.9 min. The bi-exponential model gave $HR_0$ = 52.5 bpm, $A_1$ = 15.6 bpm, $\tau_1$ = 0.47 min, $A_2$ = 51.7 bpm and $\tau_2$ = 129.5 min. In both models, $HR_0$ is an extrapolation, because it is below the lowest measured heart rate (55 bpm).
+
+### Compare the fitted models using appropriate statistical indicators and residual analysis
+
+We compared the models using AIC, BIC and the residual standard error (RSE). Lower values indicate a better fit, and AIC and BIC also penalise model complexity.
+
+RSE: The residual standard error indicates the typical difference between the measured and predicted heart rate, in bpm, and a lower value indicates a closer fit.
+
+AIC: The Akaike information criterion combines goodness of fit with a penalty for each parameter, and a lower value indicates a better balance between fit and complexity.
+
+BIC: The Bayesian information criterion follows the same principle as AIC but penalises additional parameters more strongly in large datasets such as ours.
+
+```{r compare-models-3h}
+# Compare goodness of fit and model complexity
+comparison_3h <- tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  parameters = c(2, 3, 5),
+  AIC = c(AIC(m_lin_3h), AIC(m_mono_3h), AIC(m_bi_3h)),
+  BIC = c(BIC(m_lin_3h), BIC(m_mono_3h), BIC(m_bi_3h)),
+  RSE = c(sigma(m_lin_3h), sigma(m_mono_3h), sigma(m_bi_3h))
+)
+
+comparison_3h
+```
+
+The linear model had the highest AIC, BIC and RSE. AIC slightly favoured the bi-exponential model (14025 vs 14032), whereas BIC slightly favoured the mono-exponential model (14054 vs 14058). The RSE was almost identical for these two models (7.37 vs 7.35 bpm).
+
+```{r plot-fits-3h}
+# Add the fitted values and residuals of each model to the recovery data
+res_3h <- hrr_3h |>
+  mutate(fit_linear = fitted(m_lin_3h),
+         fit_mono = fitted(m_mono_3h),
+         fit_bi = fitted(m_bi_3h),
+         res_linear = residuals(m_lin_3h),
+         res_mono = residuals(m_mono_3h),
+         res_bi = residuals(m_bi_3h))
+
+# Plot the data and the three fitted curves
+res_3h |>
+  pivot_longer(starts_with("fit_"), names_to = "model", values_to = "fit") |>
+  ggplot(aes(x = t, y = hr)) +
+  geom_point(size = 0.3, alpha = 0.3) +
+  geom_line(aes(y = fit, color = model), linewidth = 0.8) +
+  labs(x = "Time since start of recovery (min)", y = "Heart rate (bpm)")
+```
+
+The two exponential curves are very close, except during the first minutes, when the bi-exponential curve drops rapidly.
+
+```{r plot-residuals-3h}
+# Plot the residuals of each model over time
+res_3h |>
+  pivot_longer(starts_with("res_"), names_to = "model", values_to = "residual") |>
+  ggplot(aes(x = t, y = residual)) +
+  geom_point(size = 0.3) +
+  geom_hline(yintercept = 0, color = "red") +
+  facet_wrap(~model, ncol = 1) +
+  labs(x = "Time since start of recovery (min)", y = "Residual (bpm)")
+```
+
+The residuals remain structured for all three models, with waves and peaks that the curves do not capture, particularly around 25 minutes after the start of recovery. The bi-exponential model only clearly changes the first minutes.
+
+```{r test-residuals-3h}
+# Test the normality and autocorrelation of the residuals
+tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  shapiro_p = c(shapiro.test(res_3h$res_linear)$p.value,
+                shapiro.test(res_3h$res_mono)$p.value,
+                shapiro.test(res_3h$res_bi)$p.value),
+  autocorrelation = c(cor(head(res_3h$res_linear, -1), tail(res_3h$res_linear, -1)),
+                      cor(head(res_3h$res_mono, -1), tail(res_3h$res_mono, -1)),
+                      cor(head(res_3h$res_bi, -1), tail(res_3h$res_bi, -1)))
+)
+
+# Test the homoscedasticity of the linear model
+bptest(m_lin_3h)
+```
+
+The residuals were not normally distributed for any model (Shapiro-Wilk, p \< .001). Their autocorrelation was about 0.75 between consecutive measurements, so consecutive measurements are not independent. Standard errors and differences in AIC and BIC are therefore probably too optimistic. The Breusch-Pagan test did not indicate heteroscedasticity for the linear model (p = .64), but it only applies to this model here.
