@@ -56,3 +56,31 @@ summary(hr_3h)
 # Check the time between two measurements (in seconds)
 summary(diff(hr_3h$time_min) * 60)
 ```
+
+### Identify the exercise and recovery periods
+
+The recording has no activity labels, so we used the acceleration signal to help identify the end of the activity. For each minute, we computed the magnitude of the acceleration and its standard deviation. Higher values indicate more body movement.
+
+```{r identify-periods-3h}
+# Use the first pulse timestamp as the common time origin
+t0_3h <- min(pulse_3h$timestamp)
+
+# Compute body motion per minute (SD of the acceleration magnitude)
+motion_3h <- read_csv("data/acceleration_3h.csv") |>
+  mutate(time_min = (timestamp - t0_3h) / 60000,
+         magnitude = sqrt(x^2 + y^2 + z^2),
+         minute = floor(time_min)) |>
+  group_by(minute) |>
+  summarise(motion = sd(magnitude))
+
+# Set the start of recovery at the end of the last large movements
+t_start_3h <- 28.5
+
+# Show this start on the motion signal
+ggplot(motion_3h, aes(x = minute, y = motion)) +
+  geom_line() +
+  geom_vline(xintercept = t_start_3h, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Motion (SD of acceleration, g)")
+```
+
+The largest movements occurred at 24–25 and 27–28.5 minutes, so we took 28.5 minutes as the start of recovery. This remains an assumption, because the accelerometer does not tell us what the person was doing. Smaller movements around 54 minutes also temporarily increased heart rate, so recovery is not uninterrupted.
