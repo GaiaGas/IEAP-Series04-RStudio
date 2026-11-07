@@ -25,10 +25,7 @@ These two articles suggest that one model is not always sufficient. @pierpont200
 For the three-hour recording, we expect the linear model to perform worst. The mono-exponential model should capture the general trend, but may leave structured residuals. The bi-exponential model should fit better only if the recording contains two distinct recovery phases. However, both studies analysed only a few minutes of recovery, so their conclusions may not transfer directly to a three-hour recording.
 
 ## Test your predictions using the first dataset
-```{r}
-library(tidyverse)
-library(lmtest)
-```
+
 ### Explore the data
 
 ```{r explore-recording-3h}
