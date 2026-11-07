@@ -233,3 +233,7 @@ The residuals were not normally distributed for any model (Shapiro-Wilk, p \< .0
 ### Conclusion
 
 The linear model was the worst one as hypothesised. The mono-exponential and bi-exponential models performed similarly, with the bi-exponential model slightly better according to AIC and the mono-exponential model slightly better according to BIC. However, all three models left structured residuals, which suggests that none of the models fully captured the recovery dynamics. For the sake of simplicity, the mono-exponential model may be preferred. Moreover, because the recovery phase was not clearly stated in the recording, our analysis depends on our assumed starting point.
+
+### Limitations
+
+However, the entire 161-minute period cannot be considered as a pure post-exercise recovery. Movements and temporary heart rate increases persist, particularly around 54 minutes, and no activity labels are available to separate recovery from other influences. The mono-exponential model therefore describes the general decline of heart rate over the recording, and its time constant should not be interpreted as a recovery time constant.
