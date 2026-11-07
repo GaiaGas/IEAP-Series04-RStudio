@@ -1,1 +1,235 @@
-# Heart rate recovery: 3h10 recording
+# 3. Finding a mathematical model for heart rate recovery after exercise
+
+## Heart rate recovery: 3h10 recording 
+
+## 1. Formulate predictions from scientific literature
+
+### What mathematical models have been proposed to describe heart rate recovery?
+
+@pierpont2000 used a first-order (mono-exponential) decay model. @imai1994 fitted a mono-exponential model over the first 120 s ($T_{120}$) and a semilogarithmic linear regression over the first 30 s ($T_{30}$). They also proposed that a bi-exponential model might provide a better fit, but they did not test it.
+
+### What physiological mechanisms explain the decrease in heart rate after exercise?
+
+@pierpont2000 studied heart rate recovery as an index of parasympathetic activity. In @imai1994, the initial rapid decrease disappeared under atropine, and $T_{30}$ was markedly prolonged by atropine but unaffected by propranolol. This suggests that early recovery depends mainly on vagal reactivation. $T_{120}$ also depended on sympathetic activity, which suggests that gradual sympathetic withdrawal contributes over a longer period.
+
+### What are the expected characteristics of the recovery curve?
+
+We expect a rapid initial decrease, followed by a slower decrease towards a resting value. @imai1994 observed these two components on a semilogarithmic scale. They also found that recovery was faster in well-trained athletes and slower in patients with chronic heart failure. @pierpont2000 showed that the time constant after maximal exercise depended on the duration of the data included, whereas it became reasonably stable after submaximal exercise with at least 180 s of data.
+
+### Does the literature suggest that one mathematical model is sufficient to describe the entire recovery period?
+
+These two articles suggest that one model is not always sufficient. @pierpont2000 found that a first-order model was inadequate after maximal exercise because of its residuals, but reasonable after submaximal exercise. @imai1994 concluded that a mono-exponential approximation of the overall decay is not strictly correct. A bi-exponential model might fit better, although they cite an earlier study that failed to show its superiority.
+
+### Hypotheses
+
+For the three-hour recording, we expect the linear model to perform worst. The mono-exponential model should capture the general trend, but may leave structured residuals. The bi-exponential model should fit better only if the recording contains two distinct recovery phases. However, both studies analysed only a few minutes of recovery, so their conclusions may not transfer directly to a three-hour recording.
+
+## Test your predictions using the first dataset
+
+### Explore the data
+
+```{r explore-recording-3h}
+# Read the pulse data (timestamp in Unix ms, value in bpm)
+pulse_3h <- read_csv("data/pulse_3h.csv")
+
+# Check the column names, first rows and number of measurements
+names(pulse_3h)
+head(pulse_3h)
+nrow(pulse_3h)
+```
+
+```{r convert-time-3h}
+# Sort by time, convert timestamps to minutes since the start,
+# and rename the heart rate column
+hr_3h <- pulse_3h |>
+  arrange(timestamp) |>
+  transmute(time_min = (timestamp - min(timestamp)) / 60000,
+            hr = value)
+
+# Check the converted data and the range of each variable
+head(hr_3h)
+summary(hr_3h)
+
+# Check the time between two measurements (in seconds)
+summary(diff(hr_3h$time_min) * 60)
+```
+
+### Identify the exercise and recovery periods
+
+The recording has no activity labels, so we used the acceleration signal to help identify the end of the activity. For each minute, we computed the magnitude of the acceleration and its standard deviation. Higher values indicate more body movement.
+
+```{r identify-periods-3h}
+# Use the first pulse timestamp as the common time origin
+t0_3h <- min(pulse_3h$timestamp)
+
+# Compute body motion per minute (SD of the acceleration magnitude)
+motion_3h <- read_csv("data/acceleration_3h.csv") |>
+  mutate(time_min = (timestamp - t0_3h) / 60000,
+         magnitude = sqrt(x^2 + y^2 + z^2),
+         minute = floor(time_min)) |>
+  group_by(minute) |>
+  summarise(motion = sd(magnitude))
+
+# Set the start of recovery at the end of the last large movements
+t_start_3h <- 28.5
+
+# Show this start on the motion signal
+ggplot(motion_3h, aes(x = minute, y = motion)) +
+  geom_line() +
+  geom_vline(xintercept = t_start_3h, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Motion (SD of acceleration, g)")
+```
+
+The largest movements occurred at 24–25 and 27–28.5 minutes, so we took 28.5 minutes as the start of recovery. This remains an assumption, because the accelerometer does not tell us what the person was doing. Smaller movements around 54 minutes also temporarily increased heart rate, so recovery is not uninterrupted.
+
+### Extract and visualise heart rate as a function of time
+
+We converted the timestamps to minutes since the start of the recording, then plotted heart rate over the full recording. The dashed line marks the proposed start of recovery.
+
+```{r plot-heart-rate-3h}
+# Plot heart rate over the full recording and mark the start of recovery
+ggplot(hr_3h, aes(x = time_min, y = hr)) +
+  geom_line() +
+  geom_vline(xintercept = t_start_3h, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Heart rate (bpm)")
+```
+
+Heart rate shows a general downward trend, from about 130 bpm at the start to about 65 bpm at the end. It remains high and irregular during the first 28.5 minutes, reaching a maximum of 144 bpm. Short peaks persist until the end of the recording, so the decrease is not smooth. 
+
+### Identify the period corresponding to post-exercise recovery
+
+We kept only the measurements recorded after 28.5 minutes, then reset the time to 0 at this point. Variable `t` therefore represents the time since the start of recovery.
+
+```{r extract-recovery-3h}
+# Keep the recovery period and restart time at 0
+hrr_3h <- hr_3h |>
+  filter(time_min >= t_start_3h) |>
+  mutate(t = time_min - t_start_3h)
+
+# Check the number of measurements and the time range
+nrow(hrr_3h)
+range(hrr_3h$t)
+
+# Plot heart rate during the recovery period
+ggplot(hrr_3h, aes(x = t, y = hr)) +
+  geom_line() +
+  labs(x = "Time since start of recovery (min)", y = "Heart rate (bpm)")
+```
+
+The recovery period contains 2053 measurements and lasts about 161 minutes. Heart rate continues to decrease during this period, but temporary increases remain visible, particularly around 25 minutes after the start of recovery (about 54 minutes into the recording).
+
+### Fit appropriate mathematical models to the recovery data
+
+We fitted three models to the recovery data, where $t$ is the time since the start of recovery (in minutes).
+
+**Linear model:** $$HR(t) = a + b\,t$$
+
+**Mono-exponential model:** $$HR(t) = HR_0 + A\,e^{-t/\tau}$$
+
+**Bi-exponential model:** $$HR(t) = HR_0 + A_1\,e^{-t/\tau_1} + A_2\,e^{-t/\tau_2}$$
+
+$HR_0$ is the value that heart rate approaches over time, $A$, $A_1$ and $A_2$ are amplitudes in bpm, and $\tau$, $\tau_1$ and $\tau_2$ are time constants in minutes.
+
+```{r fit-models-3h}
+# Fit the linear model
+m_lin_3h <- lm(hr ~ t, data = hrr_3h)
+
+# Fit the mono-exponential model
+m_mono_3h <- nls(hr ~ hr_rest + a * exp(-t / tau),
+                 data = hrr_3h,
+                 start = list(hr_rest = 60, a = 60, tau = 30))
+
+# Fit the bi-exponential model, using one fast and one slow starting time constant
+m_bi_3h <- nls(hr ~ hr_rest + a1 * exp(-t / tau1) + a2 * exp(-t / tau2),
+               data = hrr_3h,
+               start = list(hr_rest = 55, a1 = 10, tau1 = 1, a2 = 50, tau2 = 130),
+               control = nls.control(maxiter = 500))
+
+# Display the fitted parameters
+summary(m_lin_3h)
+summary(m_mono_3h)
+summary(m_bi_3h)
+```
+
+The mono-exponential model gave $HR_0$ = 54.0 bpm, $A$ = 50.7 bpm and $\tau$ = 121.9 min. The bi-exponential model gave $HR_0$ = 52.5 bpm, $A_1$ = 15.6 bpm, $\tau_1$ = 0.47 min, $A_2$ = 51.7 bpm and $\tau_2$ = 129.5 min. In both models, $HR_0$ is an extrapolation, because it is below the lowest measured heart rate (55 bpm).
+
+### Compare the fitted models using appropriate statistical indicators and residual analysis
+
+We compared the models using AIC, BIC and the residual standard error (RSE). Lower values indicate a better fit, and AIC and BIC also penalise model complexity.
+
+RSE: The residual standard error indicates the typical difference between the measured and predicted heart rate, in bpm, and a lower value indicates a closer fit.
+
+AIC: The Akaike information criterion combines goodness of fit with a penalty for each parameter, and a lower value indicates a better balance between fit and complexity.
+
+BIC: The Bayesian information criterion follows the same principle as AIC but penalises additional parameters more strongly in large datasets such as ours.
+
+```{r compare-models-3h}
+# Compare goodness of fit and model complexity
+comparison_3h <- tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  parameters = c(2, 3, 5),
+  AIC = c(AIC(m_lin_3h), AIC(m_mono_3h), AIC(m_bi_3h)),
+  BIC = c(BIC(m_lin_3h), BIC(m_mono_3h), BIC(m_bi_3h)),
+  RSE = c(sigma(m_lin_3h), sigma(m_mono_3h), sigma(m_bi_3h))
+)
+
+comparison_3h
+```
+
+The linear model had the highest AIC, BIC and RSE. AIC slightly favoured the bi-exponential model (14025 vs 14032), whereas BIC slightly favoured the mono-exponential model (14054 vs 14058). The RSE was almost identical for these two models (7.37 vs 7.35 bpm).
+
+```{r plot-fits-3h}
+# Add the fitted values and residuals of each model to the recovery data
+res_3h <- hrr_3h |>
+  mutate(fit_linear = fitted(m_lin_3h),
+         fit_mono = fitted(m_mono_3h),
+         fit_bi = fitted(m_bi_3h),
+         res_linear = residuals(m_lin_3h),
+         res_mono = residuals(m_mono_3h),
+         res_bi = residuals(m_bi_3h))
+
+# Plot the data and the three fitted curves
+res_3h |>
+  pivot_longer(starts_with("fit_"), names_to = "model", values_to = "fit") |>
+  ggplot(aes(x = t, y = hr)) +
+  geom_point(size = 0.3, alpha = 0.3) +
+  geom_line(aes(y = fit, color = model), linewidth = 0.8) +
+  labs(x = "Time since start of recovery (min)", y = "Heart rate (bpm)")
+```
+
+The two exponential curves are very close, except during the first minutes, when the bi-exponential curve drops rapidly.
+
+```{r plot-residuals-3h}
+# Plot the residuals of each model over time
+res_3h |>
+  pivot_longer(starts_with("res_"), names_to = "model", values_to = "residual") |>
+  ggplot(aes(x = t, y = residual)) +
+  geom_point(size = 0.3) +
+  geom_hline(yintercept = 0, color = "red") +
+  facet_wrap(~model, ncol = 1) +
+  labs(x = "Time since start of recovery (min)", y = "Residual (bpm)")
+```
+
+The residuals remain structured for all three models, with waves and peaks that the curves do not capture, particularly around 25 minutes after the start of recovery. The bi-exponential model only clearly changes the first minutes.
+
+```{r test-residuals-3h}
+# Test the normality and autocorrelation of the residuals
+tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  shapiro_p = c(shapiro.test(res_3h$res_linear)$p.value,
+                shapiro.test(res_3h$res_mono)$p.value,
+                shapiro.test(res_3h$res_bi)$p.value),
+  autocorrelation = c(cor(head(res_3h$res_linear, -1), tail(res_3h$res_linear, -1)),
+                      cor(head(res_3h$res_mono, -1), tail(res_3h$res_mono, -1)),
+                      cor(head(res_3h$res_bi, -1), tail(res_3h$res_bi, -1)))
+)
+
+# Test the homoscedasticity of the linear model
+bptest(m_lin_3h)
+```
+
+The residuals were not normally distributed for any model (Shapiro-Wilk, p \< .001). Their autocorrelation was about 0.75 between consecutive measurements, so consecutive measurements are not independent. Standard errors and differences in AIC and BIC are therefore probably too optimistic. The Breusch-Pagan test did not indicate heteroscedasticity for the linear model (p = .64), but it only applies to this model here.
+
+### Conclusion
+
+The linear model was the worst one as hypothesised. The mono-exponential and bi-exponential models performed similarly, with the bi-exponential model slightly better according to AIC and the mono-exponential model slightly better according to BIC. However, all three models left structured residuals, which suggests that neither model fully captured the recovery dynamics. For the sake of simplicity, the mono-exponential model may be preferred. Moreover, because the recovery phase was not clearly stated in the recording, our analysis depends on our assumed starting point.
