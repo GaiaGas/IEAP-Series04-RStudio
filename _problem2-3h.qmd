@@ -1,7 +1,5 @@
 # Finding a mathematical model for heart rate recovery after exercise
 
-## Heart rate recovery: 3h10 recording 
-
 ## 1. Formulate predictions from scientific literature
 
 ### What mathematical models have been proposed to describe heart rate recovery?
