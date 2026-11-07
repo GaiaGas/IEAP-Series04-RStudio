@@ -121,3 +121,37 @@ ggplot(hrr_3h, aes(x = t, y = hr)) +
 
 The recovery period contains 2053 measurements and lasts about 161 minutes. Heart rate continues to decrease during this period, but temporary increases remain visible, particularly around 25 minutes after the start of recovery (about 54 minutes into the recording).
 
+### Fit appropriate mathematical models to the recovery data
+
+We fitted three models to the recovery data, where $t$ is the time since the start of recovery (in minutes).
+
+**Linear model:** $$HR(t) = a + b\,t$$
+
+**Mono-exponential model:** $$HR(t) = HR_0 + A\,e^{-t/\tau}$$
+
+**Bi-exponential model:** $$HR(t) = HR_0 + A_1\,e^{-t/\tau_1} + A_2\,e^{-t/\tau_2}$$
+
+$HR_0$ is the value that heart rate approaches over time, $A$, $A_1$ and $A_2$ are amplitudes in bpm, and $\tau$, $\tau_1$ and $\tau_2$ are time constants in minutes.
+
+```{r fit-models-3h}
+# Fit the linear model
+m_lin_3h <- lm(hr ~ t, data = hrr_3h)
+
+# Fit the mono-exponential model
+m_mono_3h <- nls(hr ~ hr_rest + a * exp(-t / tau),
+                 data = hrr_3h,
+                 start = list(hr_rest = 60, a = 60, tau = 30))
+
+# Fit the bi-exponential model, using one fast and one slow starting time constant
+m_bi_3h <- nls(hr ~ hr_rest + a1 * exp(-t / tau1) + a2 * exp(-t / tau2),
+               data = hrr_3h,
+               start = list(hr_rest = 55, a1 = 10, tau1 = 1, a2 = 50, tau2 = 130),
+               control = nls.control(maxiter = 500))
+
+# Display the fitted parameters
+summary(m_lin_3h)
+summary(m_mono_3h)
+summary(m_bi_3h)
+```
+
+The mono-exponential model gave $HR_0$ = 54.0 bpm, $A$ = 50.7 bpm and $\tau$ = 121.9 min. The bi-exponential model gave $HR_0$ = 52.5 bpm, $A_1$ = 15.6 bpm, $\tau_1$ = 0.47 min, $A_2$ = 51.7 bpm and $\tau_2$ = 129.5 min. In both models, $HR_0$ is an extrapolation, because it is below the lowest measured heart rate (55 bpm).
