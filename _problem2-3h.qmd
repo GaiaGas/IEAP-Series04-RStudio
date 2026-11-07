@@ -97,4 +97,27 @@ ggplot(hr_3h, aes(x = time_min, y = hr)) +
   labs(x = "Time (min)", y = "Heart rate (bpm)")
 ```
 
-Heart rate shows a general downward trend, from about 130 bpm at the start to about 65 bpm at the end. It remains high and irregular during the first 28.5 minutes, reaching a maximum of 144 bpm. Short peaks persist until the end of the recording, so the decrease is not smooth
+Heart rate shows a general downward trend, from about 130 bpm at the start to about 65 bpm at the end. It remains high and irregular during the first 28.5 minutes, reaching a maximum of 144 bpm. Short peaks persist until the end of the recording, so the decrease is not smooth. 
+
+### Identify the period corresponding to post-exercise recovery
+
+We kept only the measurements recorded after 28.5 minutes, then reset the time to 0 at this point. Variable `t` therefore represents the time since the start of recovery.
+
+```{r extract-recovery-3h}
+# Keep the recovery period and restart time at 0
+hrr_3h <- hr_3h |>
+  filter(time_min >= t_start_3h) |>
+  mutate(t = time_min - t_start_3h)
+
+# Check the number of measurements and the time range
+nrow(hrr_3h)
+range(hrr_3h$t)
+
+# Plot heart rate during the recovery period
+ggplot(hrr_3h, aes(x = t, y = hr)) +
+  geom_line() +
+  labs(x = "Time since start of recovery (min)", y = "Heart rate (bpm)")
+```
+
+The recovery period contains 2053 measurements and lasts about 161 minutes. Heart rate continues to decrease during this period, but temporary increases remain visible, particularly around 25 minutes after the start of recovery (about 54 minutes into the recording).
+
