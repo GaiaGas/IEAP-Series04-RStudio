@@ -84,3 +84,17 @@ ggplot(motion_3h, aes(x = minute, y = motion)) +
 ```
 
 The largest movements occurred at 24–25 and 27–28.5 minutes, so we took 28.5 minutes as the start of recovery. This remains an assumption, because the accelerometer does not tell us what the person was doing. Smaller movements around 54 minutes also temporarily increased heart rate, so recovery is not uninterrupted.
+
+### Extract and visualise heart rate as a function of time
+
+We converted the timestamps to minutes since the start of the recording, then plotted heart rate over the full recording. The dashed line marks the proposed start of recovery.
+
+```{r plot-heart-rate-3h}
+# Plot heart rate over the full recording and mark the start of recovery
+ggplot(hr_3h, aes(x = time_min, y = hr)) +
+  geom_line() +
+  geom_vline(xintercept = t_start_3h, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Heart rate (bpm)")
+```
+
+Heart rate shows a general downward trend, from about 130 bpm at the start to about 65 bpm at the end. It remains high and irregular during the first 28.5 minutes, reaching a maximum of 144 bpm. Short peaks persist until the end of the recording, so the decrease is not smooth
