@@ -138,3 +138,38 @@ comparison_7m
 
 The linear model was clearly the worst (AIC = 546, BIC = 553, RSE = 4.7 bpm). The two exponential models were very close: AIC slightly favoured the bi-exponential model (479 vs 482), whereas BIC favoured the mono-exponential model (492 vs 495). The RSE was almost identical (3.25 vs 3.32 bpm). The two extra parameters of the bi-exponential model therefore improve the fit very little.
 
+```{r plot-fits-7m}
+# Add the fitted values and residuals of each model to the recovery data
+res_7m <- hrr_7m |>
+  mutate(fit_linear = fitted(m_lin_7m),
+         fit_mono = fitted(m_mono_7m),
+         fit_bi = fitted(m_bi_7m),
+         res_linear = residuals(m_lin_7m),
+         res_mono = residuals(m_mono_7m),
+         res_bi = residuals(m_bi_7m))
+
+# Plot the data and the three fitted curves
+res_7m |>
+  pivot_longer(starts_with("fit_"), names_to = "model", values_to = "fit") |>
+  ggplot(aes(x = t, y = hr)) +
+  geom_point(size = 0.8) +
+  geom_line(aes(y = fit, color = model), linewidth = 0.8) +
+  labs(x = "Time since start of recovery (min)", y = "Heart rate (bpm)")
+```
+
+The linear model cannot follow the rapid initial decrease. The two exponential curves are almost superimposed: they follow the rapid decrease and then flatten out.
+
+```{r plot-residuals-7m}
+# Plot the residuals of each model over time
+res_7m |>
+  pivot_longer(starts_with("res_"), names_to = "model", values_to = "residual") |>
+  ggplot(aes(x = t, y = residual)) +
+  geom_point(size = 0.8) +
+  geom_hline(yintercept = 0, color = "red") +
+  geom_vline(xintercept = t_still_7m, color = "grey", linetype = "dashed") +
+  facet_wrap(~model, ncol = 1) +
+  labs(x = "Time since start of recovery (min)", y = "Residual (bpm)")
+```
+
+The residuals of the linear model form a clear U shape: the model is too low at the start and at the end and too high in the middle. The residuals of the exponential models are smaller but still structured. They are positive between about 4 and 5.5 minutes (heart rate higher than predicted, while the person was still moving) and negative after 6 minutes (heart rate lower than predicted, after the movements stopped).
+
