@@ -32,3 +32,31 @@ summary(diff(hr_7m$time_min) * 60)
 ```
 
 The recording contains 91 heart rate values over 7.4 minutes, about one value every 5 seconds. Heart rate ranges from 123 to 156 bpm.
+
+### Identify the exercise and recovery periods
+
+As for the 3h10 recording, there are no activity labels, and the body-position signal only contains "unknown". We therefore used the acceleration signal again. Because the recording is short, we computed the motion (SD of the acceleration magnitude) over 15-second windows instead of one minute.
+
+```{r identify-periods-7m}
+# Use the first pulse timestamp as the common time origin
+t0_7m <- min(pulse_7m$timestamp)
+
+# Compute body motion per 15 s (SD of the acceleration magnitude)
+motion_7m <- read_csv("data/acceleration_7m.csv") |>
+  mutate(time_min = (timestamp - t0_7m) / 60000,
+         magnitude = sqrt(x^2 + y^2 + z^2),
+         window = floor(time_min * 4) / 4) |>
+  group_by(window) |>
+  summarise(motion = sd(magnitude))
+
+# Time at which the large movements stop
+t_still_7m <- 5.5
+
+# Show this time on the motion signal
+ggplot(motion_7m, aes(x = window, y = motion)) +
+  geom_line() +
+  geom_vline(xintercept = t_still_7m, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Motion (SD of acceleration, g)")
+```
+
+The person moved during most of the recording (motion around 0.2–0.27 g), with only a short pause at about 1.25 minutes. The movements stopped at about 5.5 minutes, after which motion stayed below 0.1 g. Heart rate was highest at the very beginning (155–156 bpm) and decreased immediately, so the exercise itself ended before the start of the recording. We therefore considered the whole recording as post-exercise recovery, with $t = 0$ at the first measurement. However, this is not a recovery at rest: the person kept moving until about 5.5 minutes.
