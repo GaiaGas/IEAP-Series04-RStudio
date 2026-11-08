@@ -1,1 +1,25 @@
 # Heart rate recovery: 7m30 recording
+
+
+## Test your predictions using the second dataset: 7m30 recording
+
+### Explore the data
+
+```{r explore-recording-7m}
+# Read the pulse data (timestamp in Unix ms, value in bpm)
+pulse_7m <- read_csv("data/pulse7m30.csv")
+
+# Check the column names, first rows and number of measurements
+names(pulse_7m)
+head(pulse_7m)
+nrow(pulse_7m)
+```
+
+```{r convert-time-7m}
+# Sort by time, convert timestamps to minutes since the start,
+# and rename the heart rate column
+hr_7m <- pulse_7m |>
+  arrange(timestamp) |>
+  transmute(time_min = (timestamp - min(timestamp)) / 60000,
+            hr = value)
+```
