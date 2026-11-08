@@ -113,7 +113,7 @@ summary(m_mono_7m)
 summary(m_bi_7m)
 ```
 
-The linear model gave $HR(t) = 143.7 - 2.54\,t$. The mono-exponential model gave $HR_0$ = 130.2 bpm, $A$ = 27.2 bpm and $\tau$ = 1.08 min (about 65 s). These values are physiologically plausible: he fitted curve starts at about 157 bpm and approaches 130 bpm.
+The linear model gave $HR(t) = 143.7 - 2.54\,t$. The mono-exponential model gave $HR_0$ = 130.2 bpm, $A$ = 27.2 bpm and $\tau$ = 1.08 min (about 65 s). These values are physiologically plausible: the fitted curve starts at about 157 bpm and approaches 130 bpm.
 
 Without limits, the bi-exponential fit did not give usable values: the slow time constant increased to extremely large values (and its amplitude too), so that the slow component simply behaved like a straight line. With the limits, the slow time constant stopped exactly at the upper limit (7.5 min), and the fast component (A₁ = 22.1 bpm, τ₁ = 0.75 min) was close to the mono-exponential one. This means that the 7.4-minute recording does not contain enough information to estimate a second, slower time constant, and the values of the slow component depend on the limit we chose.
 
