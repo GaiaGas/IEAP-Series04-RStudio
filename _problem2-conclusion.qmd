@@ -1,1 +1,9 @@
-# Heart rate recovery: conclusion
+## Draw conclusions: comparison of the two recordings
+
+```{r compare-recordings}
+# Combine the model comparisons of both recordings
+bind_rows(
+  mutate(comparison_3h, recording = "3h10"),
+  mutate(comparison_7m, recording = "7m30")
+)
+```
