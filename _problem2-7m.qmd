@@ -120,3 +120,21 @@ summary(m_bi_7m)
 The linear model gave $HR(t) = 143.7 - 2.54\,t$. The mono-exponential model gave $HR_0$ = 130.2 bpm, $A$ = 27.2 bpm and $\tau$ = 1.08 min (about 65 s). These values are physiologically plausible: heart rate starts at about 157 bpm and approaches 130 bpm.
 
 Without limits, the bi-exponential fit did not give usable values: the slow time constant increased to extremely large values (and its amplitude too), so that the slow component simply behaved like a straight line. With the limits, the slow time constant stopped exactly at the upper limit (7.5 min), and the fast component (A₁ = 22.1 bpm, τ₁ = 0.75 min) was close to the mono-exponential one. This means that the 7.4-minute recording does not contain enough information to estimate a second, slower time constant, and the values of the slow component depend on the limit we chose.
+
+### Compare the fitted models using appropriate statistical indicators and residual analysis
+
+```{r compare-models-7m}
+# Compare goodness of fit and model complexity
+comparison_7m <- tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  parameters = c(2, 3, 5),
+  AIC = c(AIC(m_lin_7m), AIC(m_mono_7m), AIC(m_bi_7m)),
+  BIC = c(BIC(m_lin_7m), BIC(m_mono_7m), BIC(m_bi_7m)),
+  RSE = c(sigma(m_lin_7m), sigma(m_mono_7m), sigma(m_bi_7m))
+)
+
+comparison_7m
+```
+
+The linear model was clearly the worst (AIC = 546, BIC = 553, RSE = 4.7 bpm). The two exponential models were very close: AIC slightly favoured the bi-exponential model (479 vs 482), whereas BIC favoured the mono-exponential model (492 vs 495). The RSE was almost identical (3.25 vs 3.32 bpm). The two extra parameters of the bi-exponential model therefore improve the fit very little.
+
