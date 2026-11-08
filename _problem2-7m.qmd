@@ -87,3 +87,36 @@ range(hrr_7m$t)
 ```
 
 The recovery period contains the 91 measurements and lasts 7.4 minutes.
+
+### Fit appropriate mathematical models to the recovery data
+
+We fitted the same three models as for the 3h10 recording, with $t$ in minutes.
+
+```{r fit-models-7m}
+# Fit the linear model
+m_lin_7m <- lm(hr ~ t, data = hrr_7m)
+
+# Fit the mono-exponential model
+m_mono_7m <- nls(hr ~ hr_rest + a * exp(-t / tau),
+                 data = hrr_7m,
+                 start = list(hr_rest = 130, a = 25, tau = 1))
+
+# Fit the bi-exponential model
+# Without limits, the slow time constant grows without end, so we limited
+# the fast one to 0.05-2 min and the slow one to 2-7.5 min (recording length)
+m_bi_7m <- nls(hr ~ hr_rest + a1 * exp(-t / tau1) + a2 * exp(-t / tau2),
+               data = hrr_7m,
+               start = list(hr_rest = 125, a1 = 20, tau1 = 0.7, a2 = 10, tau2 = 5),
+               algorithm = "port",
+               lower = c(hr_rest = 0, a1 = 0, tau1 = 0.05, a2 = 0, tau2 = 2),
+               upper = c(hr_rest = 200, a1 = 100, tau1 = 2, a2 = 100, tau2 = 7.5))
+
+# Display the fitted parameters
+summary(m_lin_7m)
+summary(m_mono_7m)
+summary(m_bi_7m)
+```
+
+The linear model gave $HR(t) = 143.7 - 2.54\,t$. The mono-exponential model gave $HR_0$ = 130.2 bpm, $A$ = 27.2 bpm and $\tau$ = 1.08 min (about 65 s). These values are physiologically plausible: heart rate starts at about 157 bpm and approaches 130 bpm.
+
+Without limits, the bi-exponential fit did not give usable values: the slow time constant increased to extremely large values (and its amplitude too), so that the slow component simply behaved like a straight line. With the limits, the slow time constant stopped exactly at the upper limit (7.5 min), and the fast component (A₁ = 22.1 bpm, τ₁ = 0.75 min) was close to the mono-exponential one. This means that the 7.4-minute recording does not contain enough information to estimate a second, slower time constant, and the values of the slow component depend on the limit we chose.
