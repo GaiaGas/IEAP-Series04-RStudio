@@ -173,3 +173,21 @@ res_7m |>
 
 The residuals of the linear model form a clear U shape: the model is too low at the start and at the end and too high in the middle. The residuals of the exponential models are smaller but still structured. They are positive between about 4 and 5.5 minutes (heart rate higher than predicted, while the person was still moving) and negative after 6 minutes (heart rate lower than predicted, after the movements stopped).
 
+```{r test-residuals-7m}
+# Test the normality and autocorrelation of the residuals
+tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  shapiro_p = c(shapiro.test(res_7m$res_linear)$p.value,
+                shapiro.test(res_7m$res_mono)$p.value,
+                shapiro.test(res_7m$res_bi)$p.value),
+  autocorrelation = c(cor(head(res_7m$res_linear, -1), tail(res_7m$res_linear, -1)),
+                      cor(head(res_7m$res_mono, -1), tail(res_7m$res_mono, -1)),
+                      cor(head(res_7m$res_bi, -1), tail(res_7m$res_bi, -1)))
+)
+
+# Test the homoscedasticity of the linear model
+bptest(m_lin_7m)
+```
+
+The Shapiro-Wilk test did not reject normality for any model (p = .52 for the linear model, .07 for the mono-exponential and .10 for the bi-exponential model), but with only 91 values this test has limited power. The autocorrelation between consecutive residuals was high (0.84 for the linear model, 0.69 and 0.66 for the exponential models), so the residuals are not independent and the standard errors, AIC and BIC are probably too optimistic. The Breusch-Pagan test indicated heteroscedasticity for the linear model (BP = 23.4, p \< .001), which is consistent with its larger residuals at the start of the recording.
+
