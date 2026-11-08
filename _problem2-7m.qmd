@@ -1,1 +1,198 @@
-# Heart rate recovery: 7m30 recording
+## Test your predictions using the second dataset: 7m30 recording
+
+### Explore the data
+
+```{r explore-recording-7m}
+# Read the pulse data (timestamp in Unix ms, value in bpm)
+pulse_7m <- read_csv("data/pulse7m30.csv")
+
+# Check the column names, first rows and number of measurements
+names(pulse_7m)
+head(pulse_7m)
+nrow(pulse_7m)
+```
+
+```{r convert-time-7m}
+# Sort by time, convert timestamps to minutes since the start,
+# and rename the heart rate column
+hr_7m <- pulse_7m |>
+  arrange(timestamp) |>
+  transmute(time_min = (timestamp - min(timestamp)) / 60000,
+            hr = value)
+# Check the converted data and the range of each variable
+head(hr_7m)
+summary(hr_7m)
+
+# Check the time between two measurements (in seconds)
+summary(diff(hr_7m$time_min) * 60)
+```
+
+The recording contains 91 heart rate values over 7.4 minutes, about one value every 5 seconds. Heart rate ranges from 123 to 156 bpm.
+
+### Identify the exercise and recovery periods
+
+As for the 3h10 recording, there are no activity labels, and the body-position signal only contains "unknown". We therefore used the acceleration signal again. Because the recording is short, we computed the motion (SD of the acceleration magnitude) over 15-second windows instead of one minute.
+
+```{r identify-periods-7m}
+# Use the first pulse timestamp as the common time origin
+t0_7m <- min(pulse_7m$timestamp)
+
+# Compute body motion per 15 s (SD of the acceleration magnitude)
+motion_7m <- read_csv("data/acceleration7m30.csv") |>
+  mutate(time_min = (timestamp - t0_7m) / 60000,
+         magnitude = sqrt(x^2 + y^2 + z^2),
+         window = floor(time_min * 4) / 4) |>
+  group_by(window) |>
+  summarise(motion = sd(magnitude))
+
+# Time at which the large movements stop
+t_still_7m <- 5.5
+
+# Show this time on the motion signal
+ggplot(motion_7m, aes(x = window, y = motion)) +
+  geom_line() +
+  geom_vline(xintercept = t_still_7m, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Motion (SD of acceleration, g)")
+```
+
+The person moved during most of the recording (motion around 0.2–0.27 g), with only a short pause at about 1.25 minutes. The movements stopped at about 5.5 minutes, after which motion stayed below 0.1 g. Heart rate was highest at the very beginning (155–156 bpm) and decreased immediately, so the main effort may have ended just before the start of the recording, although the accelerometer cannot confirm what the activity was. We therefore considered the whole recording as post-exercise recovery, with $t = 0$ at the first measurement. However, this is not a recovery at rest: the person kept moving until about 5.5 minutes.
+
+### Extract and visualise heart rate as a function of time
+
+```{r plot-heart-rate-7m}
+# Plot heart rate over the full recording and mark the end of the movements
+ggplot(hr_7m, aes(x = time_min, y = hr)) +
+  geom_line() +
+  geom_point(size = 0.8) +
+  geom_vline(xintercept = t_still_7m, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Heart rate (bpm)")
+```
+
+Heart rate decreased quickly from about 155 bpm to about 131 bpm during the first 1.5 minutes. It then stayed around 131–135 bpm while the person was still moving. After the movements stopped (dashed line), it decreased again to about 124–129 bpm.
+
+### Identify the period corresponding to post-exercise recovery
+
+```{r extract-recovery-7m}
+# The whole recording is used as recovery, time already starts at 0
+hrr_7m <- hr_7m |>
+  mutate(t = time_min)
+
+# Check the number of measurements and the time range
+nrow(hrr_7m)
+range(hrr_7m$t)
+```
+
+The recovery period contains the 91 measurements and lasts 7.4 minutes.
+
+### Fit appropriate mathematical models to the recovery data
+
+We fitted the same three models as for the 3h10 recording, with $t$ in minutes.
+
+```{r fit-models-7m}
+# Fit the linear model
+m_lin_7m <- lm(hr ~ t, data = hrr_7m)
+
+# Fit the mono-exponential model
+m_mono_7m <- nls(hr ~ hr_rest + a * exp(-t / tau),
+                 data = hrr_7m,
+                 start = list(hr_rest = 130, a = 25, tau = 1))
+
+# Fit the bi-exponential model
+# Without limits, the slow time constant grows without end, so we limited
+# the fast one to 0.05-2 min and the slow one to 2-7.5 min (recording length)
+m_bi_7m <- nls(hr ~ hr_rest + a1 * exp(-t / tau1) + a2 * exp(-t / tau2),
+               data = hrr_7m,
+               start = list(hr_rest = 125, a1 = 20, tau1 = 0.7, a2 = 10, tau2 = 5),
+               algorithm = "port",
+               lower = c(hr_rest = 0, a1 = 0, tau1 = 0.05, a2 = 0, tau2 = 2),
+               upper = c(hr_rest = 200, a1 = 100, tau1 = 2, a2 = 100, tau2 = 7.5))
+
+# Display the fitted parameters
+summary(m_lin_7m)
+summary(m_mono_7m)
+summary(m_bi_7m)
+```
+
+The linear model gave $HR(t) = 143.7 - 2.54\,t$. The mono-exponential model gave $HR_0$ = 130.2 bpm, $A$ = 27.2 bpm and $\tau$ = 1.08 min (about 65 s). These values are physiologically plausible: the fitted curve starts at about 157 bpm and approaches 130 bpm.
+
+Without limits, the bi-exponential fit did not give usable values: the slow time constant increased to extremely large values (and its amplitude too), so that the slow component simply behaved like a straight line. With the limits, the slow time constant stopped exactly at the upper limit (7.5 min), and the fast component (A₁ = 22.1 bpm, τ₁ = 0.75 min) was close to the mono-exponential one. This means that the 7.4-minute recording does not contain enough information to estimate a second, slower time constant, and the values of the slow component depend on the limit we chose.
+
+### Compare the fitted models using appropriate statistical indicators and residual analysis
+
+```{r compare-models-7m}
+# Compare goodness of fit and model complexity
+comparison_7m <- tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  parameters = c(2, 3, 5),
+  AIC = c(AIC(m_lin_7m), AIC(m_mono_7m), AIC(m_bi_7m)),
+  BIC = c(BIC(m_lin_7m), BIC(m_mono_7m), BIC(m_bi_7m)),
+  RSE = c(sigma(m_lin_7m), sigma(m_mono_7m), sigma(m_bi_7m))
+)
+
+comparison_7m
+```
+
+The linear model was clearly the worst (AIC = 546, BIC = 553, RSE = 4.7 bpm). The two exponential models were very close: AIC slightly favoured the bi-exponential model (479 vs 482), whereas BIC favoured the mono-exponential model (492 vs 495). The RSE was almost identical (3.25 vs 3.32 bpm). The two extra parameters of the bi-exponential model therefore improve the fit very little.
+
+```{r plot-fits-7m}
+# Add the fitted values and residuals of each model to the recovery data
+res_7m <- hrr_7m |>
+  mutate(fit_linear = fitted(m_lin_7m),
+         fit_mono = fitted(m_mono_7m),
+         fit_bi = fitted(m_bi_7m),
+         res_linear = residuals(m_lin_7m),
+         res_mono = residuals(m_mono_7m),
+         res_bi = residuals(m_bi_7m))
+
+# Plot the data and the three fitted curves
+res_7m |>
+  pivot_longer(starts_with("fit_"), names_to = "model", values_to = "fit") |>
+  ggplot(aes(x = t, y = hr)) +
+  geom_point(size = 0.8) +
+  geom_line(aes(y = fit, color = model), linewidth = 0.8) +
+  labs(x = "Time since start of recovery (min)", y = "Heart rate (bpm)")
+```
+
+The linear model cannot follow the rapid initial decrease. The two exponential curves are almost superimposed: they follow the rapid decrease and then flatten out.
+
+```{r plot-residuals-7m}
+# Plot the residuals of each model over time
+res_7m |>
+  pivot_longer(starts_with("res_"), names_to = "model", values_to = "residual") |>
+  ggplot(aes(x = t, y = residual)) +
+  geom_point(size = 0.8) +
+  geom_hline(yintercept = 0, color = "red") +
+  geom_vline(xintercept = t_still_7m, color = "grey", linetype = "dashed") +
+  facet_wrap(~model, ncol = 1) +
+  labs(x = "Time since start of recovery (min)", y = "Residual (bpm)")
+```
+
+The residuals of the linear model form a clear U shape: the model is too low at the start and at the end and too high in the middle. The residuals of the exponential models are smaller but still structured. They are positive between about 4 and 5.5 minutes (heart rate higher than predicted, while the person was still moving) and negative after 6 minutes (heart rate lower than predicted, after the movements stopped).
+
+```{r test-residuals-7m}
+# Test the normality and autocorrelation of the residuals
+tibble(
+  model = c("Linear", "Mono-exponential", "Bi-exponential"),
+  shapiro_p = c(shapiro.test(res_7m$res_linear)$p.value,
+                shapiro.test(res_7m$res_mono)$p.value,
+                shapiro.test(res_7m$res_bi)$p.value),
+  autocorrelation = c(cor(head(res_7m$res_linear, -1), tail(res_7m$res_linear, -1)),
+                      cor(head(res_7m$res_mono, -1), tail(res_7m$res_mono, -1)),
+                      cor(head(res_7m$res_bi, -1), tail(res_7m$res_bi, -1)))
+)
+
+# Test the homoscedasticity of the linear model
+bptest(m_lin_7m)
+```
+
+The Shapiro-Wilk test did not reject normality for any model (p = .52 for the linear model, .07 for the mono-exponential and .10 for the bi-exponential model), but with only 91 values this test has limited power. The autocorrelation between consecutive residuals was high (0.84 for the linear model, 0.69 and 0.66 for the exponential models), so the residuals are not independent and the standard errors, AIC and BIC are probably too optimistic. The Breusch-Pagan test indicated heteroscedasticity for the linear model (BP = 23.4, p \< .001), which is consistent with its larger residuals at the start of the recording.
+
+### Conclusion
+
+As hypothesised, an exponential model fitted the 7m30 recording much better than a linear model. Heart rate decreased rapidly at first, with a time constant of about 1 minute, then more slowly. The bi-exponential model was not justified: it improved the fit very little (better AIC but worse BIC), and its slow time constant could not be estimated within 7.4 minutes. The mono-exponential model is therefore the best compromise between fit, simplicity and physiological interpretation, which is consistent with @pierpont2000, who found the mono-exponential model reasonable after submaximal exercise, although the intensity of the preceding effort is unknown here.
+
+However, the remaining structure in the residuals shows that recovery was not a single smooth decay. The second decrease in heart rate occurred when the person stopped moving at about 5.5 minutes. It is therefore probably due to a change in activity rather than to a second physiological recovery phase, and an exponential model cannot represent such a change.
+
+### Limitations
+
+The recording starts after the end of the exercise, so we do not know the exercise intensity, its duration or the peak heart rate. The person kept moving during most of the recording, so this is not a recovery at rest and the time constant also reflects this lower activity. The recording is short (91 values), which limits the precision of the estimates and the power of the statistical tests. Finally, the bi-exponential results depend on the limits we imposed on the time constants.
