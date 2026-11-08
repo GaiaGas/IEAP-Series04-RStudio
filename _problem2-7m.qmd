@@ -60,3 +60,16 @@ ggplot(motion_7m, aes(x = window, y = motion)) +
 ```
 
 The person moved during most of the recording (motion around 0.2–0.27 g), with only a short pause at about 1.25 minutes. The movements stopped at about 5.5 minutes, after which motion stayed below 0.1 g. Heart rate was highest at the very beginning (155–156 bpm) and decreased immediately, so the exercise itself ended before the start of the recording. We therefore considered the whole recording as post-exercise recovery, with $t = 0$ at the first measurement. However, this is not a recovery at rest: the person kept moving until about 5.5 minutes.
+
+### Extract and visualise heart rate as a function of time
+
+```{r plot-heart-rate-7m}
+# Plot heart rate over the full recording and mark the end of the movements
+ggplot(hr_7m, aes(x = time_min, y = hr)) +
+  geom_line() +
+  geom_point(size = 0.8) +
+  geom_vline(xintercept = t_still_7m, color = "red", linetype = "dashed") +
+  labs(x = "Time (min)", y = "Heart rate (bpm)")
+```
+
+Heart rate decreased quickly from about 155 bpm to about 131 bpm during the first 1.5 minutes. It then stayed around 131–135 bpm while the person was still moving. After the movements stopped (dashed line), it decreased again to about 124–129 bpm.
