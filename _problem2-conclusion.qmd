@@ -7,3 +7,7 @@ bind_rows(
   mutate(comparison_7m, recording = "7m30")
 )
 ```
+
+### Were our hypotheses supported?
+
+Our hypotheses were partly supported. As expected, the linear model was the worst in both recordings, and an exponential model described the decrease in heart rate much better. However, the bi-exponential model did not provide a meaningfully better fit in either recording: AIC slightly favoured it, whereas BIC favoured the mono-exponential model, and the residual standard errors were almost identical.
