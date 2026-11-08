@@ -15,3 +15,7 @@ Our hypotheses were partly supported. As expected, the linear model was the wors
 ### Does the same model describe both recordings?
 
 The mono-exponential model was the best compromise for both recordings, but its parameters were very different. In the 7m30 recording, the time constant was about 1 minute and heart rate approached 130 bpm, which corresponds to the fast early recovery described in the literature. In the 3h10 recording, the time constant was about 122 minutes and heart rate approached 54 bpm, which rather describes the slow return to resting heart rate over several hours. The same equation therefore fits both recordings, but it does not describe the same process, and the parameters cannot be compared directly.
+
+### Are there different recovery phases?
+
+The literature describes a rapid vagal phase followed by a slower phase linked to sympathetic withdrawal [@imai1994]. Our data show a rapid initial decrease followed by a slower one, but we could not clearly separate two physiological phases. In the 3h10 recording, the fast component of the bi-exponential model only concerned the first minutes and improved the fit very little. In the 7m30 recording, the second decrease occurred when the person stopped moving, so it was probably due to a change in activity rather than to a second recovery phase.
