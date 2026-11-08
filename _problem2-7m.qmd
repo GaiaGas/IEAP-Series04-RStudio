@@ -23,3 +23,12 @@ hr_7m <- pulse_7m |>
   transmute(time_min = (timestamp - min(timestamp)) / 60000,
             hr = value)
 ```
+# Check the converted data and the range of each variable
+head(hr_7m)
+summary(hr_7m)
+
+# Check the time between two measurements (in seconds)
+summary(diff(hr_7m$time_min) * 60)
+```
+
+The recording contains 91 heart rate values over 7.4 minutes, about one value every 5 seconds. Heart rate ranges from 123 to 156 bpm.
