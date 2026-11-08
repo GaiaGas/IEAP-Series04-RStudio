@@ -191,3 +191,12 @@ bptest(m_lin_7m)
 
 The Shapiro-Wilk test did not reject normality for any model (p = .52 for the linear model, .07 for the mono-exponential and .10 for the bi-exponential model), but with only 91 values this test has limited power. The autocorrelation between consecutive residuals was high (0.84 for the linear model, 0.69 and 0.66 for the exponential models), so the residuals are not independent and the standard errors, AIC and BIC are probably too optimistic. The Breusch-Pagan test indicated heteroscedasticity for the linear model (BP = 23.4, p \< .001), which is consistent with its larger residuals at the start of the recording.
 
+### Conclusion
+
+As hypothesised, an exponential model fitted the 7m30 recording much better than a linear model. Heart rate decreased rapidly at first, with a time constant of about 1 minute, then more slowly. The bi-exponential model was not justified: it improved the fit very little (better AIC but worse BIC), and its slow time constant could not be estimated within 7.4 minutes. The mono-exponential model is therefore the best compromise between fit, simplicity and physiological interpretation, which agrees with @pierpont2000 for submaximal exercise.
+
+However, the remaining structure in the residuals shows that recovery was not a single smooth decay. The second decrease in heart rate occurred when the person stopped moving at about 5.5 minutes. It is therefore probably due to a change in activity rather than to a second physiological recovery phase, and an exponential model cannot represent such a change.
+
+### Limitations
+
+The recording starts after the end of the exercise, so we do not know the exercise intensity, its duration or the peak heart rate. The person kept moving during most of the recording, so this is not a recovery at rest and the time constant also reflects this lower activity. The recording is short (91 values), which limits the precision of the estimates and the power of the statistical tests. Finally, the bi-exponential results depend on the limits we imposed on the time constants.
