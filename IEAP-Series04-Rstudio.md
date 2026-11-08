@@ -34,7 +34,7 @@ reviewed and approved by the other two members.
 The reviews were really useful in our work. First, it enables us to all
 think critically even though one person did the literature research.
 Indeed, the remark whether the full 161-minute period could be
-considered as recover was useful to rethink our analysis by adding a
+considered as recovery was useful to rethink our analysis by adding a
 clear limitation. Secondly, we spotted the errors when rendering (wrong
 name path and a misplaced code fence). The work was divided equally
 between the members of the team. The fact that the analysis was split in
@@ -44,9 +44,10 @@ analysis of the two recordings.
 
 We also encountered some difficulties. Because the libraries are loaded
 only in the master document, a sub-document could fail when run alone,
-so the final check must always be a render of the master document. Our
-branches shared the same variable environment after rendering, so we
-added suffixes such as `_3h` and `_7m` to objects and chunk names.
+so the final check must always be a render of the master document. All
+sub-documents are run in the same R session when the master document is
+rendered, so we added suffixes such as `_3h` and `_7m` to object and
+chunk names to avoid overwriting each other’s results.
 
 Next time, we would agree on file names and heading conventions before
 each working on our sub-document so we would have less modifications to

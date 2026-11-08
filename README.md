@@ -20,6 +20,7 @@ Team assignment on linear and non-linear regressions, for the Python, Git and RS
 │   ├── pulse7m30.csv             # heart rate, 7m30 recording
 │   └── acceleration7m30.csv      # acceleration, 7m30 recording
 ├── .gitignore
+├── IEAP-Series04-Rstudio_files/   # figures of the Markdown version
 ├── IEAP-Series04-RStudio.Rproj   # RStudio project
 ├── IEAP-Series04-Rstudio.qmd     # master document
 ├── IEAP-Series04-Rstudio.md      # Markdown version, readable on GitHub
