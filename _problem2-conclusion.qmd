@@ -11,3 +11,7 @@ bind_rows(
 ### Were our hypotheses supported?
 
 Our hypotheses were partly supported. As expected, the linear model was the worst in both recordings, and an exponential model described the decrease in heart rate much better. However, the bi-exponential model did not provide a meaningfully better fit in either recording: AIC slightly favoured it, whereas BIC favoured the mono-exponential model, and the residual standard errors were almost identical.
+
+### Does the same model describe both recordings?
+
+The mono-exponential model was the best compromise for both recordings, but its parameters were very different. In the 7m30 recording, the time constant was about 1 minute and heart rate approached 130 bpm, which corresponds to the fast early recovery described in the literature. In the 3h10 recording, the time constant was about 122 minutes and heart rate approached 54 bpm, which rather describes the slow return to resting heart rate over several hours. The same equation therefore fits both recordings, but it does not describe the same process, and the parameters cannot be compared directly.
