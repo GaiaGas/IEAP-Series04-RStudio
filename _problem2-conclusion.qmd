@@ -22,7 +22,7 @@ The literature describes a rapid vagal phase followed by a slower phase linked t
 
 ### Limitations 
 
-Both recordings have the same main limitations. There were no activity labels, so the exercise intensity is unknown. For the 3h10 recording, the start of recovery had to be estimated from the acceleration signal, and the full 161-minute period cannot be considered as a pure post-exercise recovery. For the 7m30 recording, recovery was simply assumed to start at the first measurement. In both cases, the person kept moving during the recovery, which is therefore not a recovery at rest. The residuals were strongly autocorrelated, so the standard errors, AIC and BIC are probably too optimistic. Finally, we analysed only one recording of each type, so our results cannot be generalised.
+Both recordings have the same main limitations. There were no activity labels, so the exercise intensity is unknown. For the 3h10 recording, the start of recovery had to be estimated from the acceleration signal, and the full 161-minute period cannot be considered as a pure post-exercise recovery. For the 7m30 recording, recovery was simply assumed to start at the first measurement. In both cases, movements occurred during the recovery, so it was not a recovery at rest. The residuals were strongly autocorrelated, so the standard errors, AIC and BIC are probably too optimistic. Finally, we analysed only one recording of each type, so our results cannot be generalised.
 
 ### Which model would we choose?
 
