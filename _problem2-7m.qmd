@@ -1,6 +1,3 @@
-# Heart rate recovery: 7m30 recording
-
-
 ## Test your predictions using the second dataset: 7m30 recording
 
 ### Explore the data
@@ -22,7 +19,6 @@ hr_7m <- pulse_7m |>
   arrange(timestamp) |>
   transmute(time_min = (timestamp - min(timestamp)) / 60000,
             hr = value)
-```
 # Check the converted data and the range of each variable
 head(hr_7m)
 summary(hr_7m)
@@ -42,7 +38,7 @@ As for the 3h10 recording, there are no activity labels, and the body-position s
 t0_7m <- min(pulse_7m$timestamp)
 
 # Compute body motion per 15 s (SD of the acceleration magnitude)
-motion_7m <- read_csv("data/acceleration_7m.csv") |>
+motion_7m <- read_csv("data/acceleration7m30.csv") |>
   mutate(time_min = (timestamp - t0_7m) / 60000,
          magnitude = sqrt(x^2 + y^2 + z^2),
          window = floor(time_min * 4) / 4) |>
@@ -59,7 +55,7 @@ ggplot(motion_7m, aes(x = window, y = motion)) +
   labs(x = "Time (min)", y = "Motion (SD of acceleration, g)")
 ```
 
-The person moved during most of the recording (motion around 0.2–0.27 g), with only a short pause at about 1.25 minutes. The movements stopped at about 5.5 minutes, after which motion stayed below 0.1 g. Heart rate was highest at the very beginning (155–156 bpm) and decreased immediately, so the exercise itself ended before the start of the recording. We therefore considered the whole recording as post-exercise recovery, with $t = 0$ at the first measurement. However, this is not a recovery at rest: the person kept moving until about 5.5 minutes.
+The person moved during most of the recording (motion around 0.2–0.27 g), with only a short pause at about 1.25 minutes. The movements stopped at about 5.5 minutes, after which motion stayed below 0.1 g. Heart rate was highest at the very beginning (155–156 bpm) and decreased immediately, so the main effort may have ended just before the start of the recording, although the accelerometer cannot confirm what the activity was. We therefore considered the whole recording as post-exercise recovery, with $t = 0$ at the first measurement. However, this is not a recovery at rest: the person kept moving until about 5.5 minutes.
 
 ### Extract and visualise heart rate as a function of time
 
@@ -117,7 +113,7 @@ summary(m_mono_7m)
 summary(m_bi_7m)
 ```
 
-The linear model gave $HR(t) = 143.7 - 2.54\,t$. The mono-exponential model gave $HR_0$ = 130.2 bpm, $A$ = 27.2 bpm and $\tau$ = 1.08 min (about 65 s). These values are physiologically plausible: heart rate starts at about 157 bpm and approaches 130 bpm.
+The linear model gave $HR(t) = 143.7 - 2.54\,t$. The mono-exponential model gave $HR_0$ = 130.2 bpm, $A$ = 27.2 bpm and $\tau$ = 1.08 min (about 65 s). These values are physiologically plausible: he fitted curve starts at about 157 bpm and approaches 130 bpm.
 
 Without limits, the bi-exponential fit did not give usable values: the slow time constant increased to extremely large values (and its amplitude too), so that the slow component simply behaved like a straight line. With the limits, the slow time constant stopped exactly at the upper limit (7.5 min), and the fast component (A₁ = 22.1 bpm, τ₁ = 0.75 min) was close to the mono-exponential one. This means that the 7.4-minute recording does not contain enough information to estimate a second, slower time constant, and the values of the slow component depend on the limit we chose.
 
@@ -193,7 +189,7 @@ The Shapiro-Wilk test did not reject normality for any model (p = .52 for the li
 
 ### Conclusion
 
-As hypothesised, an exponential model fitted the 7m30 recording much better than a linear model. Heart rate decreased rapidly at first, with a time constant of about 1 minute, then more slowly. The bi-exponential model was not justified: it improved the fit very little (better AIC but worse BIC), and its slow time constant could not be estimated within 7.4 minutes. The mono-exponential model is therefore the best compromise between fit, simplicity and physiological interpretation, which agrees with @pierpont2000 for submaximal exercise.
+As hypothesised, an exponential model fitted the 7m30 recording much better than a linear model. Heart rate decreased rapidly at first, with a time constant of about 1 minute, then more slowly. The bi-exponential model was not justified: it improved the fit very little (better AIC but worse BIC), and its slow time constant could not be estimated within 7.4 minutes. The mono-exponential model is therefore the best compromise between fit, simplicity and physiological interpretation, which is consistent with @pierpont2000, who found the mono-exponential model reasonable after submaximal exercise, although the intensity of the preceding effort is unknown here.
 
 However, the remaining structure in the residuals shows that recovery was not a single smooth decay. The second decrease in heart rate occurred when the person stopped moving at about 5.5 minutes. It is therefore probably due to a change in activity rather than to a second physiological recovery phase, and an exponential model cannot represent such a change.
 
