@@ -73,3 +73,17 @@ ggplot(hr_7m, aes(x = time_min, y = hr)) +
 ```
 
 Heart rate decreased quickly from about 155 bpm to about 131 bpm during the first 1.5 minutes. It then stayed around 131–135 bpm while the person was still moving. After the movements stopped (dashed line), it decreased again to about 124–129 bpm.
+
+### Identify the period corresponding to post-exercise recovery
+
+```{r extract-recovery-7m}
+# The whole recording is used as recovery, time already starts at 0
+hrr_7m <- hr_7m |>
+  mutate(t = time_min)
+
+# Check the number of measurements and the time range
+nrow(hrr_7m)
+range(hrr_7m$t)
+```
+
+The recovery period contains the 91 measurements and lasts 7.4 minutes.
