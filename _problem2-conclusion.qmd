@@ -21,7 +21,7 @@ The mono-exponential model was the best compromise for both recordings, but its 
 The literature describes a rapid vagal phase followed by a slower phase linked to sympathetic withdrawal [@imai1994]. Our data show a rapid initial decrease followed by a slower one, but we could not clearly separate two physiological phases. In the 3h10 recording, the fast component of the bi-exponential model only concerned the first minutes and improved the fit very little. In the 7m30 recording, the second decrease occurred when the person stopped moving, so it was probably due to a change in activity rather than to a second recovery phase.
 
 ### Limitations 
-Both recordings have the same main limitations.There were no activity labels, so the exercise intensity and the start of recovery had to be estimated from the acceleration signal. In both cases, the person kept moving during the recovery, which is therefore not a recovery at rest. The residuals were strongly autocorrelated, so the standard errors, AIC and BIC are probably too optimistic. Finally, we analysed only one recording of each type, so our results cannot be generalised.
+Both recordings have the same main limitations. There were no activity labels, so the exercise intensity and the start of recovery had to be estimated from the acceleration signal. In both cases, the person kept moving during the recovery, which is therefore not a recovery at rest. The residuals were strongly autocorrelated, so the standard errors, AIC and BIC are probably too optimistic. Finally, we analysed only one recording of each type, so our results cannot be generalised.
 
 ### Which model would we choose?
 
