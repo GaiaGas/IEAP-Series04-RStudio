@@ -1,0 +1,35 @@
+---
+title: "IEAP-Series04-RStudio: critical analysis"
+author: "Zoé Sauge, Gaia Gassiole, Jeanne Le Roux"
+date: today
+format:
+  typst:
+    margin:
+      x: 1.8cm
+      y: 2.5cm
+    fontsize: 10pt
+---
+
+Repository: <https://github.com/GaiaGas/IEAP-Series04-RStudio>
+
+## Challenges and choices
+
+**Making predictions first.** We wrote down our expectations and assumptions from the literature before examining the data, then refined them using AI. This made us test our ideas instead of just describing the results. It also showed us the limits of the articles we read: they only studied a few minutes of recovery after a controlled exercise, so we could not directly apply their conclusions to a three-hour recording.
+
+**One simulation is not enough.** In problem 1, the slopes behaved as we expected, but the intercepts did not. For example, the low-noise intercept was further from the true value than the medium-noise one. Because we only had one random dataset per noise level, chance could change the results. We learned that a simulation should be repeated many times before drawing conclusions.
+
+**Finding the recovery period.** The recordings had no activity labels, so we did not know when the exercise ended. We used the accelerometer to decide (28.5 min for the 3h10 recording, and the end of movements at 5.5 min for the 7m30 one). We understood that these choices affect the whole analysis, so we had to explain them and present them as assumptions. The reviews helped us with this, for example by changing "the exercise ended" to "may have ended".
+
+**Choosing the right model.** On the 7m30 recording, the bi-exponential model did not converge, because the slow time constant kept increasing. When we limited it, it stayed stuck at the limit, so 7.4 minutes of data were not enough to see a second phase. AIC and BIC also did not agree. We learned that a more complex model is only useful if the data contain enough information, and that we need to look at the statistics, the residuals and the physiology together.
+
+**Looking at the residuals.** The residuals of all models were structured and strongly autocorrelated. They helped us understand the data: in the 7m30 recording, the second drop in heart rate happened when the person stopped moving, and an exponential model cannot show this. A model can fit well and still miss part of what happens.
+
+
+## Teamwork and Git
+
+Each of us worked on her own file and branch, and each part was merged with a pull request reviewed by the two others. This worked well: the reviews found errors that would have broken the final report (a misplaced code fence and a wrong file path), and they made our interpretations more careful. Our main problem was that we tested our files alone, but the libraries were only loaded in the master document. We learned to always render the full master document before opening a pull request. Since all parts run in the same R session, we also added `_3h` and `_7m` to our object names so they would not overwrite each other.
+
+
+## What we would do differently
+
+Next time, we would agree on file names (for instance pulse_3h vs pulse7m30), object names and heading levels at the start, to avoid many small corrections at the end. For the analysis, we would only fit recovery models on the first minutes after exercise, at rest and with a known intensity. Only then would the time constant really tell us something about recovery.
