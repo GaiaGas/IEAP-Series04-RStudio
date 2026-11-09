@@ -24,7 +24,7 @@ For the three-hour recording, we expect the linear model to perform worst. The m
 
 For the 7.5-minute recording, the duration is closer to the recovery periods analysed by @pierpont2000 and @imai1994, so we expect their conclusions to apply more directly. We expect a rapid initial decrease followed by a slower one, so an exponential model should fit better than a linear model. If these two phases are clearly visible, the bi-exponential model should provide a meaningfully better fit than the mono-exponential model. However, @pierpont2000 found that the mono-exponential model was reasonable after submaximal exercise, so it may be sufficient if the preceding effort was not maximal.
 
-## Test your predictions using the first datase: 3h10 recording 
+## Test your predictions using the first dataset: 3h10 recording 
 
 ### Explore the data
 

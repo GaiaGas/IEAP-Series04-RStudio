@@ -1,6 +1,6 @@
 # Linear and non-linear regressions
 Zoé Sauge, Gaia Gassiole, Jeanne Le Roux
-2026-11-08
+2026-11-09
 
 Repository: <https://github.com/GaiaGas/IEAP-Series04-RStudio>
 
@@ -11,7 +11,9 @@ Repository: <https://github.com/GaiaGas/IEAP-Series04-RStudio>
 We worked in a public GitHub repository, with `main` as the reference
 branch. We created the `.gitignore` before working together, and it was
 completed when needed. It excludes temporary RStudio and Quarto files,
-as well as rendered HTML files.
+as well as rendered HTML files. Rendered HTML files had paths too long
+for Windows, so we completed the .gitignore with
+`*_files/libs/`, `*_files/figure-html/.`
 
 We used a master document, `IEAP-Series04-Rstudio.qmd`, which includes
 one sub-document per part. Each person mainly worked in their own file
@@ -22,7 +24,7 @@ and branch, which reduced the risk of merge conflicts:
 | Problem 1: effect of noise    | Zoé    | `problem1`              |
 | Literature and 3h10 recording | Gaia   | `problem2-3h`           |
 | 7m30 recording                | Jeanne | `problem2-7m`           |
-| General conclusion            | Zoé    | `conclusion`            |
+| General conclusion            | Zoé    | `problem2-conclusion`   |
 | Git workflow and README       | Gaia   | `git-workflow-readme`   |
 | One-page PDF report           | Jeanne | — (submitted on Moodle) |
 
@@ -31,16 +33,16 @@ reviewed and approved by the other two members.
 
 ## Analysis of our work
 
-The reviews were really useful in our work. First, it enables us to all
-think critically even though one person did the literature research.
-Indeed, the remark whether the full 161-minute period could be
+The reviews were really useful in our work. First, it enabled all of us
+to think critically even though one person did the literature research.
+Indeed, the question whether the full 161-minute period could be
 considered as recovery was useful to rethink our analysis by adding a
 clear limitation. Secondly, we spotted the errors when rendering (wrong
 name path and a misplaced code fence). The work was divided equally
 between the members of the team. The fact that the analysis was split in
 two instead of only one person making all the work was a good thing.
-Also, the fact that Zoé wrote the conclusion includes even more in the
-analysis of the two recordings.
+Having a third person write the general conclusion also helped to
+connect the two analyses.
 
 We also encountered some difficulties. Because the libraries are loaded
 only in the master document, a sub-document could fail when run alone,
@@ -244,7 +246,7 @@ found that the mono-exponential model was reasonable after submaximal
 exercise, so it may be sufficient if the preceding effort was not
 maximal.
 
-## Test your predictions using the first datase: 3h10 recording
+## Test your predictions using the first dataset: 3h10 recording
 
 ### Explore the data
 

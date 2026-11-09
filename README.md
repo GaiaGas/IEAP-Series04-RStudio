@@ -11,8 +11,6 @@ Team assignment on linear and non-linear regressions, for the Python, Git and RS
 
 ## Repository structure
 
-## Repository structure
-
 ``` text
 ├── data/
 │   ├── pulse_3h.csv              # heart rate, 3h10 recording
