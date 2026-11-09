@@ -14,7 +14,7 @@ Repository: <https://github.com/GaiaGas/IEAP-Series04-RStudio>
 
 ## Challenges and choices
 
-**Making predictions first.** We wrote our expectations and hypotheses from the literature before looking at the data, without using AI. This made us test our ideas instead of just describing the results. It also showed us the limits of the articles we read: they only studied a few minutes of recovery after a controlled exercise, so we could not directly apply their conclusions to a three-hour recording.
+**Making predictions first.** We wrote down our expectations and assumptions from the literature before examining the data, then refined them using AI. This made us test our ideas instead of just describing the results. It also showed us the limits of the articles we read: they only studied a few minutes of recovery after a controlled exercise, so we could not directly apply their conclusions to a three-hour recording.
 
 **One simulation is not enough.** In problem 1, the slopes behaved as we expected, but the intercepts did not. For example, the low-noise intercept was further from the true value than the medium-noise one. Because we only had one random dataset per noise level, chance could change the results. We learned that a simulation should be repeated many times before drawing conclusions.
 
@@ -32,4 +32,4 @@ Each of us worked on her own file and branch, and each part was merged with a pu
 
 ## What we would do differently
 
-Next time, we would agree on file names (for instance difference between pulse_3h and pulse7m30), object names and heading levels at the start, to avoid many small corrections at the end. For the analysis, we would only fit recovery models on the first minutes after exercise, at rest and with a known intensity. Only then would the time constant really tell us something about recovery.
+Next time, we would agree on file names (for instance pulse_3h vs pulse7m30), object names and heading levels at the start, to avoid many small corrections at the end. For the analysis, we would only fit recovery models on the first minutes after exercise, at rest and with a known intensity. Only then would the time constant really tell us something about recovery.
